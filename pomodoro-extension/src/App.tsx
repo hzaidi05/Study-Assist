@@ -1,6 +1,73 @@
+import React, { useEffect } from 'react';
 import './App.css';
+import ReactDOM from 'react-dom/client';
 
 function App() {
+  useEffect(() => {
+  const injectedScript = `
+  const timer = {
+    pomodoro: 25,
+    shortBreak: 5,
+    longBreak: 15,
+    longBreakInterval: 4,
+  };
+
+  const modeButtons = document.querySelector('#js-mode-buttons');
+  if (modeButtons) {
+    modeButtons.addEventListener('click', handleMode);
+
+    function updateClock() {
+      const { remainingTime } = timer;
+      const minutes = \`\${remainingTime.minutes}\`.padStart(2, '0');
+      const seconds = \`\${remainingTime.seconds}\`.padStart(2, '0');
+
+      const min = document.getElementById('js-minutes');
+      const sec = document.getElementById('js-seconds');
+      if (min && sec) {
+        min.textContent = minutes;
+        sec.textContent = seconds;
+      }
+    }
+
+    function switchMode(mode) {
+      timer.mode = mode;
+      timer.remainingTime = {
+        total: timer[mode] * 60,
+        minutes: timer[mode],
+        seconds: 0,
+      };
+
+      const modeButtons = document.querySelectorAll('button[data-mode]');
+      modeButtons.forEach(e => e.classList.remove('active'));
+      const activeButton = document.querySelector(\`[data-mode="\${mode}"]\`);
+      if (activeButton) {
+        activeButton.classList.add('active');
+      }
+
+      document.body.style.backgroundColor = \`var(--\${mode})\`;
+
+      updateClock();
+    }
+
+    function handleMode(event) {
+      const { mode } = event.target.dataset;
+
+      if (!mode) return;
+
+      switchMode(mode);
+    }
+  }
+  `;
+
+    const scriptElement = document.createElement('script');
+    scriptElement.innerHTML = injectedScript;
+    document.body.appendChild(scriptElement);
+
+    return () => {
+      document.body.removeChild(scriptElement);
+    };
+  }, []);
+  
   return (
     <div>
     <head>
@@ -53,7 +120,7 @@ function App() {
         <audio src="break.mp3" data-sound="shortBreak"></audio>
         <audio src="break.mp3" data-sound="longBreak"></audio>
       </div>
-      <script src="main.ts"></script>
+      <script src="index.tsx"></script>
     </body>
     </div>
   );
