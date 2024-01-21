@@ -11,5 +11,9 @@
         "activeTab",
         "scripting",
         "storage"
-    ]
+    ],
+    "background": {
+        "service_worker": "index.js",
+        "type": "module"
+      }
 }
